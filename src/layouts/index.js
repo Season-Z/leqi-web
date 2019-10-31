@@ -20,16 +20,7 @@ export default function BasicLayout(props) {
       </Sider>
       <Layout>
         <HeaderBar collapsed={collapsed} toggleCollapsed={toggleCollapsed} />
-        <Content
-          style={{
-            margin: '24px 16px',
-            padding: 24,
-            background: '#fff',
-            minHeight: 280,
-          }}
-        >
-          {props.children}
-        </Content>
+        <Content className={styles.pageContent}>{props.children}</Content>
       </Layout>
     </Layout>
   );
