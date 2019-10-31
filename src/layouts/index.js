@@ -1,17 +1,16 @@
-import React, { useState } from 'react';
-import { Layout, Icon } from 'antd';
+import React, { useState, useCallback } from 'react';
+import { Layout } from 'antd';
 import SiderMenu from './SiderMenu';
+import HeaderBar from './HeaderBar';
 
 import styles from './index.less';
 
-const { Header, Sider, Content } = Layout;
+const { Sider, Content } = Layout;
 
 export default function BasicLayout(props) {
   const [collapsed, setCollapsed] = useState(false);
 
-  const toggleCollapsed = () => {
-    setCollapsed(value => !value);
-  };
+  const toggleCollapsed = useCallback(() => setCollapsed(collapsed => !collapsed), []);
 
   return (
     <Layout className={styles.layout}>
@@ -20,13 +19,7 @@ export default function BasicLayout(props) {
         <SiderMenu />
       </Sider>
       <Layout>
-        <Header style={{ background: '#fff', padding: 0 }}>
-          <Icon
-            className={styles.trigger}
-            type={collapsed ? 'menu-unfold' : 'menu-fold'}
-            onClick={toggleCollapsed}
-          />
-        </Header>
+        <HeaderBar collapsed={collapsed} toggleCollapsed={toggleCollapsed} />
         <Content
           style={{
             margin: '24px 16px',
