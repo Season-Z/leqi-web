@@ -1,7 +1,6 @@
-import React, { memo } from 'react';
-import PropTypes from 'prop-types';
-import { Menu, Icon } from 'antd';
+import React, { memo, useEffect, useState } from 'react';
 import withRouter from 'umi/withRouter';
+import { Menu, Icon } from 'antd';
 import routes from '../routers';
 
 const { Item: MenuItem, SubMenu } = Menu;
@@ -28,12 +27,14 @@ const renderSiderMenu = list => {
         </SubMenu>,
       );
     } else if (value.component) {
-      children.push(
-        <MenuItem key={value.path}>
-          <Icon type={value.icon} />
-          <span>{value.name}</span>
-        </MenuItem>,
-      );
+      if (!value.hide) {
+        children.push(
+          <MenuItem key={value.path}>
+            <Icon type={value.icon} />
+            <span>{value.name}</span>
+          </MenuItem>,
+        );
+      }
     }
   };
 
@@ -42,22 +43,45 @@ const renderSiderMenu = list => {
   return children;
 };
 
-const SiderMenu = memo(function SiderMenu(props) {
+const SiderMenu = memo(props => {
+  const { location } = props;
+  const [selectedKeys, setSelectedKeys] = useState([location.pathname]);
+  const [openKeys, setOpenKeys] = useState([]);
+
   const handleChangeMenu = ({ key }) => {
     props.history.push(key);
+    setSelectedKeys([key]);
+  };
+  const handleOpenChange = keys => {
+    const latestOpenKey = keys.find(key => openKeys.indexOf(key) === -1);
+    if (!latestOpenKey) {
+      return;
+    }
+    setOpenKeys(latestOpenKey ? [latestOpenKey] : []);
   };
 
+  useEffect(() => {
+    setSelectedKeys([location.pathname]);
+  }, [location.pathname]);
+
+  useEffect(() => {
+    const keys = `/${location.pathname.split('/')[1]}`;
+    handleOpenChange([keys]);
+  }, [location.pathname]);
+
   return (
-    <React.Fragment>
-      <Menu theme="dark" mode="inline" onClick={handleChangeMenu}>
-        {renderSiderMenu(routes)}
-      </Menu>
-    </React.Fragment>
+    <Menu
+      mode="inline"
+      selectedKeys={selectedKeys}
+      openKeys={openKeys}
+      onClick={handleChangeMenu}
+      onOpenChange={handleOpenChange}
+      width={200}
+      style={{ background: '#fff' }}
+    >
+      {renderSiderMenu(routes)}
+    </Menu>
   );
 });
-
-SiderMenu.propTypes = {
-  history: PropTypes.object,
-};
 
 export default withRouter(SiderMenu);
